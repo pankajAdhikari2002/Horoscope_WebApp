@@ -5,8 +5,6 @@ import datetime
 
 app = Flask(__name__)
 
-today_data = None
-
 def find_sign(dob):
     x = datetime.datetime.strptime(dob, '%Y-%m-%d')
     date_f = x.strftime('%d %B %Y').split(" ")
@@ -54,24 +52,22 @@ def home():
 
 @app.route("/info/<astro_sign>/<name>")
 def info(astro_sign, name):
+    with open("horoscope.json", "r", encoding="utf-8") as outfile:
+        today_data = json.load(outfile)
     data = today_data[astro_sign.title()]
     return render_template("infopage.html", astro_sign=astro_sign, data=data, name=name)
 
 @app.route("/runScriptCopy@728")
 def runScript():
-    global today_data
     script.runScript()
-    try:
-        with open("horoscope.json", "r", encoding="utf-8") as outfile:
-            today_data = json.load(outfile)
-        return {"Message": "Script Ran Successfully"}
-    except Exception as e:
-        return {"Error": "Error Occured"}
+    return {"Message": "Script Ran Successfully"}
+    # try:
+    #     with open("horoscope.json", "r", encoding="utf-8") as outfile:
+    #         today_data = json.load(outfile)
+    #     return {"Message": "Script Ran Successfully"}
+    # except Exception as e:
+    #     return {"Error": "Error Occured"}
     
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error.html', err=e), 404
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
