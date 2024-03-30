@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+
+{% block body %}
+<h2 class="fs-1 text-body-secondary header-font-bold text-center mb-4 user-select-none">Your Constellation is {{ astro_sign.title() }}</h2>
+<img src="{{ url_for('static', filename='images/astrologySign/' ~ astro_sign ~ '.png') }}" alt="{{ astro_sign }}" srcset="" class="d-block mx-auto mb-4 user-select-none" width="100" height="100">
+<p class="reading-font fs-5 col-lg-8 col-md-8 col-sm-12 mx-auto mb-4 user-select-none">
+    {{ data['desc'].replace(astro_sign.title(), name) }}
+</p>
+<p class="reading-font fs-5 col-lg-8 col-md-8 col-sm-12 mx-auto user-select-none"><b>Cosmic tip:</b> {{ data['cosmic_tip'] }}</p>
+
+{% endblock %}
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}
+
