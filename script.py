@@ -37,10 +37,10 @@ def runScript():
         # Writing to sample.json
         with open(file="horoscope.json", mode="w", encoding="utf-8") as outfile:
             outfile.write(json_object)
-        print("Script ran without any problem")
+        return "Script ran without any problem"
 
     except requests.exceptions.RequestException as e:
-        print("Error occurred while running Script:", e)
+        return "Error occurred while running Script('While scraping/request')."
 
     except Exception as e:
-        print("An unexpected error occurred while running the Script:", e)
+        return "An unexpected error occurred while running the Script."
