@@ -61,12 +61,12 @@ def info(astro_sign, name):
 def runScript():
     response = script.runScript()
     return response
-    # try:
-    #     with open("horoscope.json", "r", encoding="utf-8") as outfile:
-    #         today_data = json.load(outfile)
-    #     return {"Message": "Script Ran Successfully"}
-    # except Exception as e:
-    #     return {"Error": "Error Occured"}
+
+@app.route("/viewDataCopy@728")
+def runScript():
+    with open("horoscope.json", "r", encoding="utf-8") as outfile:
+        today_data = json.load(outfile)
+    return today_data
     
 @app.errorhandler(404)
 def page_not_found(e):
