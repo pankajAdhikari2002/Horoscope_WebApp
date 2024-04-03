@@ -63,7 +63,7 @@ def runScript():
     return response
 
 @app.route("/viewDataCopy@728")
-def runScript():
+def viewData():
     with open("horoscope.json", "r", encoding="utf-8") as outfile:
         today_data = json.load(outfile)
     return today_data
