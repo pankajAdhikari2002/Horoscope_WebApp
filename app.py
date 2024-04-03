@@ -59,8 +59,8 @@ def info(astro_sign, name):
 
 @app.route("/runScriptCopy@728")
 def runScript():
-    script.runScript()
-    return {"Message": "Script Ran Successfully"}
+    response = script.runScript()
+    return response
     # try:
     #     with open("horoscope.json", "r", encoding="utf-8") as outfile:
     #         today_data = json.load(outfile)
@@ -71,3 +71,7 @@ def runScript():
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('error.html', err=e), 404
+
+@app.errorhandler(500)
+def internal_error(e):
+    return render_template('error.html', err=e), 500
