@@ -9,7 +9,7 @@ def runScript():
         today = datetime.date.today()
         day, month, year = today.strftime("%d %B %Y").split(" ")
 
-        url = f"https://www.vogue.in/horoscope/collection/horoscope-today-{month.lower()}-{day}-{year}/"
+        url = f"https://www.vogue.in/horoscope/collection/horoscope-today-{month.lower()}-{int(day)}-{year}/"
 
         response = requests.get(url)
         response.raise_for_status()  # Raise an error for bad response status codes
