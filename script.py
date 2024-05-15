@@ -40,7 +40,7 @@ def runScript():
         return {"Message": "Script ran successfully!"}
 
     except requests.exceptions.RequestException as e:
-        return {"Request-Error" : e}
+        return {"Request-Error" : str(e)}
 
     except Exception as e:
-        return {"Script-Error" : e}
+        return {"Script-Error" : str(e)}
