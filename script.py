@@ -37,7 +37,7 @@ def runScript():
         # Writing to sample.json
         with open(file="horoscope.json", mode="w", encoding="utf-8") as outfile:
             outfile.write(json_object)
-        return "OK"
+        return {"Message": "Script ran successfully!"}
 
     except requests.exceptions.RequestException as e:
         return {"Request-Error" : e}
