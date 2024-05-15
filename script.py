@@ -40,7 +40,7 @@ def runScript():
         return "OK"
 
     except requests.exceptions.RequestException as e:
-        return "ErrorR"
+        return {"Request-Error" : e}
 
     except Exception as e:
-        return "ErrorS"
+        return {"Script-Error" : e}
