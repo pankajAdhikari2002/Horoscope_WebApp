@@ -25,7 +25,7 @@ def runScript():
 
         # Loop through the found elements
         for element in elements_with_class:
-            symbol = element.h2.text.split(" ")[0]
+            symbol = element.find(class_="product-title").text.strip().split(" ")[0]
             content = element.find(class_="product-summary").text
             desc, cosmic_tip = content.split("Cosmic tip: ")
             data_f[symbol] = {"desc": desc, "cosmic_tip": cosmic_tip}
