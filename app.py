@@ -50,6 +50,10 @@ def home():
     
     return render_template("homepage.html")
 
+@app.route('/refresh')
+def refresh():
+    return {'message': 'ping!'}
+
 @app.route("/info/<astro_sign>/<name>")
 def info(astro_sign, name):
     with open("horoscope.json", "r", encoding="utf-8") as outfile:
