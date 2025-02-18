@@ -6,7 +6,10 @@ import datetime
 app = Flask(__name__)
 
 def find_sign(dob):
-    x = datetime.datetime.strptime(dob, '%Y-%m-%d')
+    try:
+        x = datetime.datetime.strptime(dob, '%Y-%m-%d')
+    except ValueError:
+        raise ValueError('Invalid date format. Please use YYYY-MM-DD format.')
     date_f = x.strftime('%d %B %Y').split(" ")
     day = int(date_f[0])
     month = date_f[1].lower()
@@ -56,10 +59,17 @@ def refresh():
 
 @app.route("/info/<astro_sign>/<name>")
 def info(astro_sign, name):
-    with open("horoscope.json", "r", encoding="utf-8") as outfile:
-        today_data = json.load(outfile)
-    data = today_data[astro_sign.title()]
-    return render_template("infopage.html", astro_sign=astro_sign, data=data, name=name)
+    try:
+        with open("horoscope.json", "r", encoding="utf-8") as outfile:
+            today_data = json.load(outfile)
+        data = today_data[astro_sign.title()]
+        return render_template("infopage.html", astro_sign=astro_sign, data=data, name=name)
+    except FileNotFoundError:
+        return render_template('error.html', err='Horoscope data not available. Please try again later.'), 500
+    except KeyError:
+        return render_template('error.html', err='Invalid zodiac sign provided.'), 400
+    except json.JSONDecodeError:
+        return render_template('error.html', err='Error reading horoscope data.'), 500
 
 @app.route("/runScriptCopy@728")
 def runScript():
@@ -81,4 +91,5 @@ def internal_error(e):
     return render_template('error.html', err=e), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    # Only bind to localhost in development
+    app.run(host="127.0.0.1", debug=False)

@@ -1,0 +1,74 @@
+import google.generativeai as genai
+import os
+import json
+import datetime
+
+# Get API key
+apikey = os.getenv("GEMINI_API_KEY")
+
+# Ensure API key is not None
+if not apikey:
+    raise ValueError("GEMINI_API_KEY is not set. Please check your environment variables.")
+
+try:
+    # Initialize Google AI client
+    client = genai.Client(api_key=apikey)
+
+    # Get current timestamp
+    x = datetime.datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
+
+    # Prompt for horoscope generation
+    prompt = """
+    You are an astrologer generating unique daily horoscopes. Each execution should yield fresh insights, ensuring variety while aligning with each zodiac sign's characteristics. Generate a JSON response containing:  
+
+    - A brief daily horoscope (max 110 words) tailored to each zodiac sign’s personality, strengths, and challenges.  
+    - A cosmic tip (max 15 words) offering guidance, motivation, or reflection.  
+
+    Format:
+    {
+      "Aries": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      },
+      "Taurus": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      },
+      "...": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      }
+    }
+    Ensure horoscopes feel natural, insightful, and unique each time by incorporating dynamic themes, celestial influences, and emotional depth. Avoid repetition and clichés.
+    """
+
+    # Generate response
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", contents=prompt
+    )
+
+    if not response.text:
+        raise ValueError("API response is empty.")
+
+    # Process JSON output
+    output = response.text.replace("```", "").replace("json", "").strip()
+    obj = json.loads(output)
+    obj["Date"] = x  # Add timestamp
+
+    # Save to JSON file
+    json_obj = json.dumps(obj, indent=4)
+
+    with open("horoscope.json", "w", encoding="utf-8") as outfile:
+        outfile.write(json_obj)
+
+    print("Horoscope saved successfully!")
+
+except json.JSONDecodeError:
+    print("Error: Failed to parse JSON response from API.")
+
+except genai.APIError as api_err:
+    print(f"API Error: {api_err}")
+
+except Exception as e:
+    print(f"Unexpected Error: {e}")
+

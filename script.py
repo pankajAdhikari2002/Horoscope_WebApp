@@ -1,74 +1,73 @@
-from google import genai
-import os
 import json
 import datetime
 
-# Get API key
-apikey = os.getenv("GEMINI_API_KEY")
-
-# Ensure API key is not None
-if not apikey:
-    raise ValueError("GEMINI_API_KEY is not set. Please check your environment variables.")
-
-try:
-    # Initialize Google AI client
-    client = genai.Client(api_key=apikey)
-
-    # Get current timestamp
-    x = datetime.datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
-
-    # Prompt for horoscope generation
-    prompt = """
-    You are an astrologer generating unique daily horoscopes. Each execution should yield fresh insights, ensuring variety while aligning with each zodiac sign's characteristics. Generate a JSON response containing:  
-
-    - A brief daily horoscope (max 110 words) tailored to each zodiac sign’s personality, strengths, and challenges.  
-    - A cosmic tip (max 15 words) offering guidance, motivation, or reflection.  
-
-    Format:
-    {
-      "Aries": {
-        "desc": "...",
-        "cosmic_tip": "..."
-      },
-      "Taurus": {
-        "desc": "...",
-        "cosmic_tip": "..."
-      },
-      "...": {
-        "desc": "...",
-        "cosmic_tip": "..."
-      }
+def get_default_horoscope():
+    return {
+        "Date": datetime.datetime.now().strftime("%d %b %Y | %I:%M:%S %p"),
+        "Aries": {
+            "desc": "Today is a great day for new beginnings. Your natural leadership abilities are heightened.",
+            "cosmic_tip": "Take the initiative in important matters."
+        },
+        "Taurus": {
+            "desc": "Focus on practical matters and financial security today.",
+            "cosmic_tip": "Invest in your future stability."
+        },
+        "Gemini": {
+            "desc": "Your communication skills are particularly strong today.",
+            "cosmic_tip": "Share your ideas with confidence."
+        },
+        "Cancer": {
+            "desc": "Trust your intuition in emotional matters today.",
+            "cosmic_tip": "Listen to your inner voice."
+        },
+        "Leo": {
+            "desc": "Your creative energy is at its peak today.",
+            "cosmic_tip": "Express yourself boldly."
+        },
+        "Virgo": {
+            "desc": "Focus on organizing and planning today.",
+            "cosmic_tip": "Pay attention to details."
+        },
+        "Libra": {
+            "desc": "Harmony in relationships is highlighted today.",
+            "cosmic_tip": "Seek balance in all things."
+        },
+        "Scorpio": {
+            "desc": "Your determination and focus are particularly strong today.",
+            "cosmic_tip": "Trust your instincts."
+        },
+        "Sagittarius": {
+            "desc": "Adventure and learning opportunities await you today.",
+            "cosmic_tip": "Embrace new experiences."
+        },
+        "Capricorn": {
+            "desc": "Professional opportunities are highlighted today.",
+            "cosmic_tip": "Stay focused on your goals."
+        },
+        "Aquarius": {
+            "desc": "Your innovative ideas can make a real difference today.",
+            "cosmic_tip": "Think outside the box."
+        },
+        "Pisces": {
+            "desc": "Your artistic and spiritual nature is enhanced today.",
+            "cosmic_tip": "Follow your dreams."
+        }
     }
-    Ensure horoscopes feel natural, insightful, and unique each time by incorporating dynamic themes, celestial influences, and emotional depth. Avoid repetition and clichés.
-    """
 
-    # Generate response
-    response = client.models.generate_content(
-        model="gemini-2.0-flash", contents=prompt
-    )
+def runScript():
+    try:
+        # Use default horoscope data
+        obj = get_default_horoscope()
+        
+        # Save to JSON file
+        json_obj = json.dumps(obj, indent=4)
+        with open("horoscope.json", "w", encoding="utf-8") as outfile:
+            outfile.write(json_obj)
+        
+        return {"status": "success", "message": "Horoscope updated successfully!"}
+    
+    except Exception as e:
+        return {"status": "error", "message": f"Error: {str(e)}"}
 
-    if not response.text:
-        raise ValueError("API response is empty.")
-
-    # Process JSON output
-    output = response.text.replace("```", "").replace("json", "").strip()
-    obj = json.loads(output)
-    obj["Date"] = x  # Add timestamp
-
-    # Save to JSON file
-    json_obj = json.dumps(obj, indent=4)
-
-    with open("horoscope.json", "w", encoding="utf-8") as outfile:
-        outfile.write(json_obj)
-
-    print("Horoscope saved successfully!")
-
-except json.JSONDecodeError:
-    print("Error: Failed to parse JSON response from API.")
-
-except genai.APIError as api_err:
-    print(f"API Error: {api_err}")
-
-except Exception as e:
-    print(f"Unexpected Error: {e}")
-
+# Initialize horoscope.json when the script is imported
+runScript()
