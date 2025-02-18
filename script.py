@@ -15,8 +15,11 @@ def get_default_horoscope():
     if not apikey:
         raise ValueError("GEMINI_API_KEY is not set. Please check your environment variables.")
 
-    # Initialize Google AI client
-    client = genai.Client(api_key=apikey)
+    # Configure the API
+    genai.configure(api_key=apikey)
+
+    # Create a model instance
+    model = genai.GenerativeModel('gemini-pro')
 
     # Get current timestamp
     x = datetime.datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
@@ -47,9 +50,7 @@ def get_default_horoscope():
     """
 
     # Generate response
-    response = client.models.generate_content(
-        model="gemini-2.0-flash", contents=prompt
-    )
+    response = model.generate_content(prompt)
 
     if not response.text:
         raise ValueError("API response is empty.")
