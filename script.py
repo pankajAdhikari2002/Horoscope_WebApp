@@ -1,60 +1,74 @@
-from bs4 import BeautifulSoup
-import datetime
+from google import genai
+import os
 import json
-import requests
+import datetime
 
+# Get API key
+apikey = os.getenv("GEMINI_API_KEY")
 
-def runScript():
-    try:
-        today = datetime.date.today()
-        day, month, year = today.strftime("%d %B %Y").split(" ")
-        url = f"https://www.vogue.in/horoscope/collection/horoscope-today-{month.lower()}-{int(day)}-{year}/"
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an error for bad response status codes
+# Ensure API key is not None
+if not apikey:
+    raise ValueError("GEMINI_API_KEY is not set. Please check your environment variables.")
 
-        html_content = response.text
+try:
+    # Initialize Google AI client
+    client = genai.Client(api_key=apikey)
 
-        # Create a Beautiful Soup object
-        soup = BeautifulSoup(html_content, 'html.parser')
+    # Get current timestamp
+    x = datetime.datetime.now().strftime("%d %b %Y | %I:%M:%S %p")
 
-        # Find all elements with a specific class name
-        elements_with_class = soup.find_all(class_='product-block-full')
+    # Prompt for horoscope generation
+    prompt = """
+    You are an astrologer generating unique daily horoscopes. Each execution should yield fresh insights, ensuring variety while aligning with each zodiac sign's characteristics. Generate a JSON response containing:  
 
-        # Create a Beautiful Soup object
-        soup = BeautifulSoup(html_content, 'html.parser')
+    - A brief daily horoscope (max 110 words) tailored to each zodiac sign’s personality, strengths, and challenges.  
+    - A cosmic tip (max 15 words) offering guidance, motivation, or reflection.  
 
-        # Find all elements with a specific class name
-        elements_with_class = soup.find_all(class_='product-block-full')
+    Format:
+    {
+      "Aries": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      },
+      "Taurus": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      },
+      "...": {
+        "desc": "...",
+        "cosmic_tip": "..."
+      }
+    }
+    Ensure horoscopes feel natural, insightful, and unique each time by incorporating dynamic themes, celestial influences, and emotional depth. Avoid repetition and clichés.
+    """
 
-        data_f = {}
-        data_f["Date"] = f"{day} {month} {year}"
+    # Generate response
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", contents=prompt
+    )
 
+    if not response.text:
+        raise ValueError("API response is empty.")
 
-        # Loop through the found elements
-        # Most of the time prone to bugg is this code 👇
-        for element in elements_with_class:
-            symbol = element.find(class_="product-title").text.strip().split(" ")[0]
-            content = element.find(class_="product-summary").find_all('p') # Splitting the desc with cosmic tip was giving problem so extracting adn displaying as a whole.
-            content = [
-                c.text
-                for c in content
-                if len(c.text) > 20
-            ]
-            data_f[symbol] = {"desc": content[0], "cosmic_tip": content[1][12:]} # This code might have a problem in the future!
-        
-        print(data_f)
-        
-        # Serializing json
-        json_object = json.dumps(data_f, indent=4, ensure_ascii=False)
+    # Process JSON output
+    output = response.text.replace("```", "").replace("json", "").strip()
+    obj = json.loads(output)
+    obj["Date"] = x  # Add timestamp
 
-        # Writing to sample.json
-        with open(file="horoscope.json", mode="w", encoding="utf-8") as outfile:
-            outfile.write(json_object)
-        return {"Message": "Script ran successfully!"}
-    
-    except requests.exceptions.RequestException as e:
-        return {"Message for Request Error" : str(e)}
+    # Save to JSON file
+    json_obj = json.dumps(obj, indent=4)
 
-    except Exception as e:
-        return {"Message for Script Error" : str(e)}
+    with open("horoscope.json", "w", encoding="utf-8") as outfile:
+        outfile.write(json_obj)
+
+    print("Horoscope saved successfully!")
+
+except json.JSONDecodeError:
+    print("Error: Failed to parse JSON response from API.")
+
+except genai.APIError as api_err:
+    print(f"API Error: {api_err}")
+
+except Exception as e:
+    print(f"Unexpected Error: {e}")
 
