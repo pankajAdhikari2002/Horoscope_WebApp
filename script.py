@@ -1,5 +1,9 @@
 import json
 import datetime
+from config import supabase
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from pytz import timezone
 
 def get_default_horoscope():
     return {
@@ -56,18 +60,47 @@ def get_default_horoscope():
 
 def runScript():
     try:
+        print("Starting horoscope update...")
         # Use default horoscope data
         obj = get_default_horoscope()
+        print("Generated horoscope data")
         
-        # Save to JSON file
+        try:
+            # Insert new data (no need to delete as we'll just have multiple versions)
+            insert_response = supabase.table('horoscopes').insert({
+                'data': obj,
+                'created_at': datetime.datetime.now(timezone('UTC')).isoformat()
+            }).execute()
+            print(f"Inserted new data: {insert_response}")
+            print(f"Inserted new data: {insert_response}")
+        except Exception as db_error:
+            print(f"Supabase error: {str(db_error)}")
+            raise db_error
+        
+        # Also save to JSON file as backup
         json_obj = json.dumps(obj, indent=4)
         with open("horoscope.json", "w", encoding="utf-8") as outfile:
             outfile.write(json_obj)
+        print("Saved backup to JSON file")
         
         return {"status": "success", "message": "Horoscope updated successfully!"}
     
     except Exception as e:
+        print(f"Error in runScript: {str(e)}")
         return {"status": "error", "message": f"Error: {str(e)}"}
 
-# Initialize horoscope.json when the script is imported
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    runScript,
+    trigger=CronTrigger(hour=6, minute=0, timezone=timezone('Asia/Kolkata')),
+    id='update_horoscope',
+    name='Update horoscope data daily at 6 AM IST',
+    replace_existing=True
+)
+
+# Start the scheduler
+scheduler.start()
+
+# Initialize horoscope data when the script is imported
 runScript()
