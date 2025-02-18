@@ -1,0 +1,15 @@
+[Unit]
+Description=Horoscope Web Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/horoscope
+Environment="PATH=/var/www/horoscope/venv/bin"
+Environment="FLASK_ENV=production"
+Environment="FLASK_APP=wsgi.py"
+ExecStart=/var/www/horoscope/venv/bin/gunicorn --workers 3 --bind unix:horoscope.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

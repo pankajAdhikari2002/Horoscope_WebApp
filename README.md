@@ -94,6 +94,66 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Production Deployment
+
+### VPS Deployment
+
+1. Connect to your VPS:
+   ```bash
+   ssh user@your-vps-ip
+   ```
+
+2. Clone the repository:
+   ```bash
+   git clone https://github.com/pankajAdhikari2002/Horoscope_WebApp.git
+   cd Horoscope_WebApp
+   ```
+
+3. Create a .env file:
+   ```bash
+   cp .env.example .env
+   nano .env  # Edit with your actual credentials
+   ```
+
+4. Make the deployment script executable:
+   ```bash
+   chmod +x deploy.sh
+   ```
+
+5. Run the deployment script:
+   ```bash
+   ./deploy.sh
+   ```
+
+6. Update Nginx configuration:
+   - Edit `/etc/nginx/sites-available/horoscope`
+   - Replace `your-domain.com` with your actual domain
+
+7. SSL Configuration (Optional but recommended):
+   ```bash
+   sudo apt-get install certbot python3-certbot-nginx
+   sudo certbot --nginx -d your-domain.com
+   ```
+
+### Maintenance
+
+- View logs:
+  ```bash
+  sudo journalctl -u horoscope
+  ```
+
+- Restart application:
+  ```bash
+  sudo systemctl restart horoscope
+  ```
+
+- Update application:
+  ```bash
+  cd /var/www/horoscope
+  git pull
+  sudo systemctl restart horoscope
+  ```
+
 ## Technical Details
 
 ### Data Storage
