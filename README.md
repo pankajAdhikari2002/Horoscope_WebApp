@@ -1,6 +1,6 @@
 "# Daily Horoscope Web Application
 
-A Flask-based web application that provides daily horoscope readings and cosmic tips for all zodiac signs. The application features cloud data storage with Supabase, automated daily updates, and a robust fallback mechanism.
+A production-ready Flask web application that provides daily horoscope readings and cosmic tips for all zodiac signs. The application features cloud data storage with Supabase, automated daily updates, robust error handling, and a complete deployment system for VPS hosting.
 
 ## Features
 
@@ -15,11 +15,20 @@ A Flask-based web application that provides daily horoscope readings and cosmic 
 
 ## Prerequisites
 
+### Development Environment
 - Python 3.12 or higher
 - pip (Python package installer)
 - Supabase account (for cloud storage)
 
-## Installation
+### Production Environment
+- Ubuntu/Debian VPS (recommended)
+- Domain name (for production deployment)
+- SSL certificate (recommended)
+- Nginx
+- Python 3.12 or higher
+- Systemd
+
+## Local Development Setup
 
 1. Clone the repository:
    ```bash
@@ -27,9 +36,21 @@ A Flask-based web application that provides daily horoscope readings and cosmic 
    cd Horoscope_WebApp
    ```
 
-2. Install the required dependencies:
+2. Create and activate virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
+   ```
+
+4. Create environment file:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your credentials
    ```
 
 ## Configuration
@@ -77,14 +98,28 @@ The application will automatically:
 
 ## Project Structure
 
-- `app.py`: Main Flask application file with routes and error handling
+### Core Application Files
+- `app.py`: Main Flask application with routes and error handling
 - `script.py`: Horoscope generation and scheduling logic
-- `config.py`: Supabase configuration and environment variables
+- `config.py`: Configuration and environment variables
+- `wsgi.py`: WSGI entry point for production server
+
+### Data Files
 - `horoscope.json`: Local backup of horoscope data
+
+### Frontend Files
 - `templates/`: HTML templates
 - `static/`: CSS, JavaScript, and other static files
-- `.env`: Configuration file for sensitive credentials (not tracked in git)
-- `requirements.txt`: Project dependencies
+
+### Configuration Files
+- `.env`: Environment variables and credentials (not tracked in git)
+- `.env.example`: Example environment file template
+- `requirements.txt`: Python dependencies
+
+### Deployment Files
+- `deploy.sh`: Automated deployment script
+- `horoscope.service`: Systemd service configuration
+- `horoscope.nginx`: Nginx server configuration
 
 ## Contributing
 
@@ -157,20 +192,34 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Technical Details
 
 ### Data Storage
-- Primary storage: Supabase (PostgreSQL with JSONB)
+- Primary: Supabase (PostgreSQL with JSONB)
 - Backup: Local JSON file
-- Automatic fallback mechanism if cloud storage is unavailable
+- Automatic fallback mechanism
+- Daily data synchronization
 
-### Scheduling
-- APScheduler for automated daily updates
-- Configured for 6 AM IST updates
-- Timezone-aware scheduling using pytz
+### Scheduling System
+- APScheduler for automated updates
+- Runs daily at 6 AM IST
+- Timezone-aware using pytz
+- Persistent across server restarts
 
 ### Error Handling
 - Comprehensive error logging
 - Graceful fallback mechanisms
 - User-friendly error pages
-- Debug mode for development
+- Development and production modes
+
+### Production Server
+- Gunicorn WSGI server
+- Multiple worker processes
+- Unix socket communication
+- Nginx reverse proxy
+
+### Security Features
+- Environment-based configuration
+- Secure credential management
+- SSL/TLS support
+- Production hardening
 
 ## Acknowledgments
 
